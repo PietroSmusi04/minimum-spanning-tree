@@ -1,0 +1,680 @@
+(defparameter *vertices* (make-hash-table :test #'equal))
+(defparameter *arcs* (make-hash-table :test #'equal))
+(defparameter *graphs* (make-hash-table :test #'equal))
+(defparameter *visited* (make-hash-table :test #'equal))
+(defparameter *vertex-keys* (make-hash-table :test #'equal))
+(defparameter *previous* (make-hash-table :test #'equal))
+(defparameter *heaps* (make-hash-table :test #'equal))
+(defparameter *heap-pos* (make-hash-table :test #'equal))
+
+(require "cl-csv")
+
+(defun test ()
+  (new-graph 'g)
+  (new-vertex 'g 'a)
+  (new-vertex 'g 'b)
+  (new-vertex 'g 'c)
+  (new-vertex 'g 'd)
+  (new-vertex 'g 'e)
+  (new-vertex 'g 'f)
+  (new-vertex 'g 'g)
+  (new-vertex 'g 'h)
+  (new-vertex 'g 'i)
+  (new-arc 'g 'a 'b 4)
+  (new-arc 'g 'b 'a 4)
+  (new-arc 'g 'c 'b 8)
+  (new-arc 'g 'c 'd 7)
+  (new-arc 'g 'd 'e 9)
+  (new-arc 'g 'e 'f 10)
+  (new-arc 'g 'f 'g 2)
+  (new-arc 'g 'g 'h 1)
+  (new-arc 'g 'a 'h 8)
+  (new-arc 'g 'g 'i 6)
+  (new-arc 'g 'i 'h 7)
+  (new-arc 'g 'h 'b 11)()
+  (new-arc 'g 'd 'f 14)
+  (new-arc 'g 'c 'f 4)
+  (new-arc 'g 'c 'i 2))
+
+(defun heap-test ()
+  (new-heap 'h 20000)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5)
+  (heap-insert 'h 67 3)
+  (heap-insert 'h 99 2)
+  (heap-insert 'h 2 66)
+  (heap-insert 'h 5 5))
+
+(defun extract (heap-id)
+  (if (not (heap-empty heap-id))
+      (progn
+	(print (heap-extract heap-id))
+	(extract heap-id))))
+
+(defun kill ()
+  (new-graph 'kill)
+  (cl-csv:read-csv #P"primkiller_definitivo.csv" 
+		    :separator #\Tab
+		    :map-fn #' (lambda (row) ;(print row)
+				 (new-arc 'kill
+					  (first row)
+					  (second row)
+					  (parse-integer (third row)))))
+ nil)
+
+
+(defun prim-and-get (g v1 v2)
+  (mst-prim g v1)
+  (mst-get g v2))
+
+(defun is-graph (graph-id)
+  (gethash graph-id *graphs*))
+
+(defun new-graph (graph-id)
+  (if (null (gethash graph-id *graphs*))
+      (progn
+	(setf (gethash graph-id *graphs*)
+	      (list graph-id (make-hash-table :test #'equal)))
+	(setf (gethash graph-id *arcs*)
+	      (make-hash-table :test #'equal)))))
+
+
+(defun new-vertex (graph-id vertex-id)
+  (if (null (gethash (list 'vertex graph-id vertex-id) *vertices*))
+      (progn
+	(setf (gethash (list 'vertex graph-id vertex-id)
+                       *vertices*)
+              (list 'vertex graph-id vertex-id))
+	(setf (gethash vertex-id (second (gethash graph-id *graphs*)))
+	      (make-hash-table :test #'equal))
+	(setf (gethash vertex-id (gethash graph-id *arcs*))
+	      (make-hash-table :test #'equal)))))
+
+
+(defun is-arc (graph-id v1-id v2-id)
+  (or 
+   (not (null (gethash (list 'arc graph-id v1-id v2-id) *arcs*)))
+   (not (null (gethash (list 'arc graph-id v2-id v1-id) *arcs*)))))
+
+
+
+(defun new-arc (graph-id v1-id v2-id &optional (weight 1))
+  (new-vertex graph-id v2-id)
+  (new-vertex graph-id v1-id)
+  (setf (gethash v2-id (gethash v1-id (gethash graph-id *arcs*))) weight)
+  (setf (gethash v1-id (gethash v2-id (gethash graph-id *arcs*))) weight))
+
+
+
+
+(defun graph-vertices (graph-id)
+  (let ((vertex-list))
+    (maphash (lambda (k &optional v)
+               (if (equal (second k) graph-id)
+                   (setf vertex-list (push-to-list vertex-list
+                                                   (list 'vertex graph-id
+                                                         (third k))))))
+             *vertices*)
+    vertex-list))
+
+
+(defun push-to-list (list element)
+    (cons element list))
+
+(defun graph-arcs (graph-id)
+  (let ((hash-list (loop for v being each hash-value of *arcs*
+                         collect v)))
+    (remove-if-not (lambda (v) (equal graph-id (second v)))
+  hash-list)))
+  
+
+
+(defun delete-graph (graph-id)
+    (maphash (lambda (k v)
+               (if (equal graph-id (second k))
+                   (remhash k *arcs*)) NIL) *arcs*)
+    (maphash (lambda (k v)
+               (if (equal graph-id (second k))
+                   (remhash k *vertices*)) NIL) *vertices*) 
+    (maphash (lambda (k v)
+               (if (eq graph-id k)
+                   (remhash k *graphs*)) NIL) *graphs*))
+
+(defun graph-vertex-neighbors (graph-id vertex-id)
+  (let* ((list)
+	 (neighbors (progn
+		      (maphash
+		       (lambda (k v) 
+			 (setf list
+			       (push-to-list list (list
+						   'arc graph-id vertex-id k v))))
+		       (gethash vertex-id (gethash graph-id *arcs*)))
+		      list)))
+    neighbors))
+
+
+;(defun graph-vertex-adjacent (graph-id vertex-id)
+ ; (let ((va (loop for k being the hash-keys of *arcs*
+;		      collect (if (and
+;			   (equal (second k) graph-id)
+;				   (equal (third k) vertex-id))
+;				  (list 'vertex graph-id (fourth
+;							  k)))))
+;      (v (loop for k being the hash-keys of *arcs*
+;		      collect (if (and
+;			   (equal (second k) graph-id)
+;				   (equal (third k) vertex-id))
+;				  (list 'vertex graph-id (fourth
+;						  k)))))) 
+ ;  (remove-if (lambda (x) (null x)) hash-list)))
+
+
+
+(defun graph-print (graph-id)
+  (maphash (lambda (k v) (print v)) *vertices*)
+  (maphash (lambda (k v) (print v)) *arcs*))
+
+
+
+
+(defun new-heap (heap-id &optional (capacity 42)) 
+  (or (gethash heap-id *heaps*) 
+      (setf (gethash heap-id *heaps*) 
+            (list 'heap heap-id 0 (make-array (+ 1 capacity))
+		  (make-hash-table :test #'equal)))))  
+
+
+(defun heap-delete (heap-id)
+  (remhash heap-id *heaps*))
+
+
+(defun heap-empty (heap-id)
+  (eq 0 (third (gethash heap-id *heaps*))))
+
+(defun heap-not-empty (heap-id)
+  (not (heap-empty heap-id)))
+
+
+(defun heap-position (heap-id value &optional (key nil))
+  (let ((pos)
+	(heap-size (heap-size heap-id)))
+    (block stop
+    (cond ((not (null key))
+	   (maphash (lambda (k v)
+		      (progn
+		       (setf pos v)
+		       (return-from stop)
+
+		      ))
+		    (gethash key (gethash value (heap-position-hash heap-id)))))
+	   (T
+	    
+	    
+	      (maphash (lambda (k v) ;(print k) (print v) (print-hash (gethash k (gethash value (heap-position-hash heap-id))))
+			 (maphash (lambda (ke va)
+			     
+				    (setf pos va)
+				    (return-from stop))
+				  (gethash k (gethash value (heap-position-hash heap-id)))))
+		       
+		       (gethash value (heap-position-hash heap-id))))))
+    pos))
+
+
+;(defun heap-position (heap-id value &optional (key nil))
+;  (heap-search heap-id (heap-actual-heap heap-id) value key 1))
+
+
+;(defun heap-search (heap-id elements value key index)
+;  (let ((pos))
+;    (if (<= index (heap-size heap-id))
+;	(progn
+;	  (if (null key)
+;	      (if (equal (second (aref elements index)) value)
+;		  (setf pos index)))
+;     
+;	  (if (not (null key))
+;	      (if (and (equal (second (aref elements index)) value) (equal key (first (aref elements index))))
+;		  (setf pos index)))
+;	  (if (not (null pos))
+;	      pos
+;	      (heap-search heap-id elements value key (+ 1 index)))))))
+
+
+(defun heap-sink (heap-id pos)
+  (let* ((left (* 2 pos))
+         (right (+ 1 left))
+	 (size (heap-size heap-id))
+         (heap-array (heap-actual-heap heap-id))
+         (left-key (if (>= size left)
+                       (first (aref heap-array left))
+                     NIL))
+         (right-key (if (>= size right)
+                        (first (aref heap-array right))
+                      NIL))
+         (pos-key (first (aref heap-array pos)))
+         (min-pos (cond
+                    ((>= size right) (cond 
+                                       ((and (<=  right-key left-key)
+                                             (< right-key pos-key))
+					right)  
+                                       ((and (<= left-key right-key)  
+                                             (< left-key pos-key))
+					left)  
+                                       (T pos)))
+                    ((equal size left) (cond
+					 ((< left-key pos-key)
+					  left)  
+					 (T pos))) 
+                    (T pos))))
+    (if (not (equal pos min-pos))
+        (progn
+          (heap-swap heap-id pos min-pos)
+          (heap-sink heap-id min-pos)))))
+
+
+
+
+(defun heap-swim (heap-id p)
+  (if (<= p 1) p
+    (let ((parent (floor p 2))
+          (heap-array (heap-actual-heap heap-id)))
+      (if (< (first (aref heap-array p)) (first (aref heap-array
+						      parent)))
+          (progn
+            (heap-swap heap-id p parent)
+            (heap-swim heap-id parent)) p))))
+
+(defun heap-swap (heap-id pos1 pos2)
+  (let* ((heap-entry (gethash heap-id *heaps*))
+	 (heap-hash (fifth heap-entry))
+	 (heap-array (fourth heap-entry))
+         (temp (aref heap-array pos1))
+	 (element1 (aref heap-array pos1))
+	 (element2 (aref heap-array pos2))
+	 (element1-hash
+	   (gethash (first element1)
+		    (gethash (second element1)
+			     heap-hash)))
+	 (element2-hash
+	   (gethash (first element2)
+		    (gethash (second element2)
+			     heap-hash))))
+    
+    (remhash pos2 element2-hash)
+    (remhash pos1 element1-hash)
+    (setf (gethash pos2 element1-hash) pos2)
+    (setf (gethash pos1 element2-hash) pos1)
+
+    ;(setq element1 element2)
+    ;(setq element2 temp)))
+    (setf (aref heap-array pos1) (aref heap-array pos2))
+    (setf (aref heap-array pos2) temp)))
+
+
+
+(defun heap-position-hash (heap-id)
+  (fifth (gethash heap-id *heaps*)))
+
+(defun heap-size (heap-id)
+  (third (gethash heap-id *heaps*)))
+
+
+(defun heap-head (heap-id)
+  (aref (fourth (gethash heap-id *heaps*)) 1))
+
+(defun heap-insert (heap-id k v)
+  (let* ((heap-entry (gethash heap-id *heaps*))
+         (new-pos (+ 1 (heap-size heap-id)))
+	 (element-hash-table
+	   (progn 
+	   (if (null (gethash v (fifth heap-entry)))
+	       (setf (gethash v (fifth heap-entry))
+		     (make-hash-table :test #'equal)))
+	   
+	   (if (null (gethash k (gethash v (fifth heap-entry))))
+	       (setf (gethash k (gethash v (fifth heap-entry)))
+		     (make-hash-table :test #'equal)))
+	   
+	   (gethash k (gethash v (fifth heap-entry))))))
+
+    
+    (setf (aref (fourth heap-entry) new-pos) (list k v))
+    (setf (third heap-entry) new-pos)
+
+    (setf (gethash new-pos element-hash-table) new-pos)
+    ;(print-hash element-hash-table)
+    (heap-swim heap-id new-pos)))
+
+(defun heap-extract (heap-id)
+  (let* ((heap-entry (gethash heap-id *heaps*))
+         (head (heap-head heap-id)))
+    
+    (heap-swap heap-id 1 (heap-size heap-id))
+    (setf (third heap-entry) (- (heap-size heap-id) 1))
+    (remhash 1 (gethash (first head) (gethash (second head) (fifth heap-entry))))
+    (heap-sink heap-id 1)
+    head))
+
+(defun heap-actual-heap (heap-id)
+  (fourth (gethash heap-id *heaps*)))
+
+(defun heap-modify-key (heap-id new-key old-key value)
+  (let*  ((heap-pos (heap-position heap-id value old-key))
+	  (heap-entry (gethash heap-id *heaps*))
+	  (heap-hash (fifth heap-entry))
+          (heap-array (fourth heap-entry))
+	  (new-key-hash (gethash new-key (gethash value heap-hash)))
+	  (old-key-hash (gethash old-key (gethash value heap-hash))))
+    
+    ;(remhash heap-pos (gethash old-key (gethash value (fifth heap-entry))))
+    (remhash heap-pos old-key-hash)
+    (if (null new-key-hash)
+	;(setf (gethash new-key (gethash value (fifth heap-entry))) (make-hash-table :test #'equal))
+	(setf new-key-hash (make-hash-table :test #'eq)))
+    ;(print new-key-hash) (print heap-pos)
+    (setf (gethash heap-pos new-key-hash) heap-pos)  ;(print new-key-hash)
+    (setf (aref heap-array heap-pos) (list new-key value))
+    ;(print "lol")
+    (setf (gethash new-key (gethash value heap-hash)) new-key-hash)
+    (cond ((< old-key new-key)
+           (heap-sink heap-id heap-pos))
+          ((> old-key new-key)
+           (heap-swim heap-id heap-pos)))))
+
+(defun heap-print (heap-id)
+  (format t "DIMENSIONE: ~A, \NELEMENTI: ~D%"
+          (heap-size heap-id) (heap-actual-heap heap-id)))
+
+
+
+
+
+(defun mst-prim (graph-id source)
+  (mst-init graph-id source 'mst-heap)
+  (mst-prim-rec graph-id 'mst-heap)) 
+
+
+(defun mst-prim-rec (graph-id heap-id)
+  (if (heap-not-empty heap-id)
+      (let* ((head (heap-extract heap-id))
+	     (head-id (third (second head)))
+	     (heap-array (heap-actual-heap heap-id)))
+	(setf (gethash (second head) *vertex-keys*) (first head))
+	
+	(maphash (lambda (k v)
+		   (let ((pos
+			   (heap-position heap-id (list 'vertex graph-id k)))) ;(print pos)
+		     (if (not (null pos))
+			 (if (> (first (aref heap-array pos)) v)
+			     (progn
+			       (heap-modify-key heap-id v
+						(first (aref heap-array pos))
+						(second (aref heap-array pos)))
+			       (setf (gethash (list 'vertex graph-id k)
+					     (gethash graph-id  *previous*))
+				     (list 'vertex graph-id head-id)))))))
+		 (gethash (third (second head)) (gethash graph-id *arcs*)))
+     	(mst-prim-rec graph-id heap-id))))
+
+
+(defun somma-archi ()
+  (let ((somma 0))
+    (maphash (lambda (k v)
+	       (setf somma (+ somma v))) *vertex-keys*)
+    somma))
+
+(defun mst-init (graph-id source heap-id)
+  (let ((vertices (graph-vertices graph-id)))
+    (heap-delete heap-id)
+    (clrhash *vertex-keys*)
+    (remhash graph-id *previous*)
+    (setf (gethash graph-id *previous*) (make-hash-table :test #'equal))
+    (new-heap heap-id (list-length vertices))
+    (mapcar (lambda (vertex)
+	      (if (equal (third vertex) source)
+		  (progn
+		    (heap-insert heap-id 0 vertex)
+		    (setf (gethash vertex
+				   *vertex-keys*) 0)) 
+		  (progn
+		    (heap-insert heap-id MOST-POSITIVE-DOUBLE-FLOAT vertex)
+		    (setf (gethash vertex
+				   *vertex-keys*) MOST-POSITIVE-DOUBLE-FLOAT))))
+	    vertices)) nil)
+
+
+(defun mst-vertex-key (graph-id vertex-id)
+  (gethash (list 'vertex graph-id vertex-id) *vertex-keys*))
+
+
+(defun print-hash (hash-table)
+  (maphash (lambda (k v) (print (list k v))) hash-table))
+
+(defun mst-get (graph-id source)
+  (clrhash *visited*)
+  (build-mst-graph graph-id)
+  (mst-get-rec graph-id source))
+
+(defun mst-get-rec (graph-id source)
+  (set-visited (list 'vertex graph-id source))
+  (mst-get-list graph-id
+		(stable-sort
+		 (stable-sort (free-arcs graph-id source)
+			      'string<  :key 'fourth)
+		 '< :key 'fifth)))
+
+(defun build-mst-graph (graph-id)
+  (maphash (lambda (k v)
+	     (setf (gethash
+		    (third v) (gethash (third k)
+				       (second (gethash graph-id *graphs*))))
+		   (mst-vertex-key graph-id (third k)))
+	     (setf
+	      (gethash (third k) (gethash (third v)
+					  (second
+					   (gethash graph-id *graphs*))))
+			 (mst-vertex-key graph-id (third k))))
+	   (gethash  graph-id *previous*)))
+
+(defun mst-get-list (graph-id arcs)
+  (if (not (null arcs))
+      (cons (car arcs)
+	    (append (mst-get-rec graph-id (fourth (car arcs)))
+		    (mst-get-list graph-id (cdr arcs))))))
+
+(defun free-arcs (graph-id source)
+  (let ((arcs-list))
+    (maphash (lambda (k v)
+	       (if (not (is-visited (list 'vertex graph-id k)))
+		   (setf arcs-list
+			 (push-to-list arcs-list
+				       (list 'arc graph-id source k v)))))
+             (gethash source (second (gethash graph-id *graphs*))))
+    arcs-list))
+
+
+(defun is-visited (vertex)
+  (not (null (gethash vertex *visited*))))
+
+(defun set-visited (vertex)
+  (setf (gethash vertex *visited*) vertex))
+
+(defun somma-giusta (lista)
+  (if (not (null lista))
+      (+ (somma-giusta (cdr lista)) (fifth (car lista)))
+      0))

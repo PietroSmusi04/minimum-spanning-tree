@@ -10,6 +10,17 @@
 :- dynamic vertex_previous/3.
 :- dynamic not_visited/2.
 
+
+/**
+ * mst_init(G, Source, Heap)
+ * Questo predicato è vero se G è un grafo, Source è un vertice di G e
+ * Heap è uno heap. Rimuove dalla base di conoscenza eventuali
+ * asserzioni vertex_key e previous fatte durante altre elaborazioni e
+ * associs nello heap chiave infinita a tutti i vertici tranne per
+ * Source, a cui viene associata 0. viene utilizzato maplist/2 per
+ * applicare a ogni vertice l'inserimento nello heap.
+ */
+
 mst_init(G, Source, Heap) :-
     retractall(vertex_key(G, _, _)),
     retractall(vertex_previous(G, _, _)),
@@ -22,6 +33,15 @@ mst_init(G, Source, Heap) :-
     heap_insert(Heap, 0, Source),
     asserta(vertex_key(G, Source, 0)).
 
+/**
+ * mst_prim(G, Source)
+ * Questo predicato è vero se G è un grafo, Source è un vertice di G.
+ * Rimuove dalla base di conoscenza eventuali
+ * asserzioni vertex_key e previous fatte durante altre elaborazioni e
+ * associs nello heap chiave infinita a tutti i vertici tranne per
+ * Source, a cui viene associata 0. DFPIGviene utilizzato maplist/2 per
+ * applicare a ogni vertice l'inserimento nello heap.
+ */
 
 mst_prim(G, Source) :-
     vertex(G, Source),

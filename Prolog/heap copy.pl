@@ -3,7 +3,11 @@
 :- dynamic heap_entry/4.
 :- dynamic heap/2.
 
-
+/**
+ * new_heap(H)
+ * Questo predicato aggiunge lo heap H alla base di conoscenza se non
+ * è già presente.
+ */
 new_heap(H) :-
     heap(H, _S), !.
 
@@ -11,19 +15,37 @@ new_heap(H) :-
     asserta(heap(H, 0)), !.
 
 
+/**
+ * heap_has_size(H, S)
+ * Questo predicato è vero se H è uno heap di dimensione S.
+ */
 heap_has_size(H, S) :-
     heap(H, S).
 
 
 
+/**
+ * heap_empty(H)
+ * Questo predicato è vero se H è uno heap di dimensione 0.
+ */
 heap_empty(H) :-
     heap_has_size(H, 0).
 
-
+/**
+ * heap_not_empty(H)
+ * Questo predicato è vero se H è uno heap di dimensione maggiore di 0.
+ */
 heap_not_empty(H) :-
     heap_has_size(H, N),
     N > 0.
 
+
+/**
+ * swap(H, P, Q)
+ * Questo predicato è vero se P e Q sono posizioni dello
+ * heap. L'effetto collaterale è che scambia di posizione le
+ * heap_entry relative.
+ */
 
 swap(H, P, Q) :-
     heap_entry(H, P, KP, VP),
@@ -82,6 +104,10 @@ swim(H, K) :-
 swim(H, _) :- heap(H, _), !.
 
 
+/**
+ * delete_heap(H)
+ * Questo predicato elimina lo heap H dalla base di conoscenza, se esiste.
+ */
 delete_heap(H) :-
     heap(H, _), !,
     retractall(heap_entry(H, _, _, _)),
@@ -90,16 +116,23 @@ delete_heap(H) :-
 delete_heap(_) :- !.
 
 
-
+/**
+ * heap_head(H)
+ * Questo predicato è vero se la heap entry in posizione 1 ha chiave K
+ * e valore V.
+ */
 heap_head(H, K, V) :-
     heap_entry(H, 1, K, V).
 
-    
+/**
+ * heap_insert(H, K, V)
+ * Questo predicato è vero se H è uno heap e inserisce un elemento con
+ * chiave K e valore V.
+ */
 heap_insert(H, K, V) :-
     nonvar(H),
     nonvar(K),
     nonvar(V),
-    \+ heap_entry(H, _, _, V),
     heap_has_size(H, S),
     retract(heap(H, S)),
     S1 is S + 1,
@@ -107,7 +140,11 @@ heap_insert(H, K, V) :-
     asserta(heap_entry(H, S1, K, V)),
     swim(H, S1).
 
-
+/**
+ * heap_extract(H)
+ * Questo predicato è vero se H è uno heap di dimensione non nulla, il
+ * cui elemento di chiave minima K è V.
+ */
 
 heap_extract(H, K, V) :-
     heap_has_size(H, 1), !,
@@ -126,11 +163,22 @@ heap_extract(H, K, V) :-
     sink(H, 1).
 
 
+/**
+ * list_heap(H)
+ * Questo predicato è vero se H è uno heap e vengono elencate tutte le
+ * asserzioni riguardanti le sue entry.
+ */
+
 list_heap(H) :-
     heap(H, _),
     listing(heap_entry(H, _, _, _)).
 
-
+/**
+ * modify_key(H, NewKey, OldKey, V)
+ * Questo predicato è vero se H è uno heap e contiene l'elemento di
+ * chiave OldKey assoviato al valore V. L'effetto collaterale è che
+ * OldKey viene sostituita con NewKey.
+ */
 modify_key(H, NewKey, OldKey, V) :-
     heap_entry(H, P, OldKey, V),
     retract(heap_entry(H, P, OldKey, V)),

@@ -4,17 +4,26 @@
 :- dynamic vertex/2.
 :- dynamic arc/4.
 
-
 new_graph(G) :-
     graph(G), !.
 
 new_graph(G) :-
-    assert(graph(G)), !.
+    asserta(graph(G)), !.
+
+
+
+atomify(X, Y) :-
+    number(X),
+    atom_number(Y, X), !.
+atomify(X, X) :- !.
 
 delete_graph(G) :-
-    retractall(arc(G, _, _, _)),
+    retract(graph(G)),
     retractall(vertex(G, _)),
-    retract(graph(G)).
+    retractall(arc(G, _, _, _)), !.
+
+delete_graph(_) :- !.
+   
 
 new_vertex(G, V) :-
     graph(G),
@@ -22,62 +31,118 @@ new_vertex(G, V) :-
 
 new_vertex(G, V) :-
     graph(G),
-    assert(vertex(G, V)), !.
+    asserta(vertex(G, V)), !.
 
-vertices(G, Vs) :-
-    findall(vertex(G, V), vertex(G, V), Vs).
+
+graph_vertices(G, Vs) :-
+    nonvar(Vs),
+    graph(G),
+    findall(vertex(G, V),(graph(G), vertex(G, V)), As),
+    sort(As, Vs).
+
+graph_vertices(G, Vs) :-
+    var(Vs),
+    graph(G),
+    findall(vertex(G, V),(graph(G), vertex(G, V)), Vs).
+
 
 list_vertices(G) :-
+    graph(G),
     listing(vertex(G, _)).
 
-new_arc(G, U, V, _) :-
-    arc(G, U, V, _), !.
 
-new_arc(G, U, V, _) :-
-    arc(G, V, U, _), !.
+
+new_arc(_, U, U, _) :- !.
+new_arc(G, U, V, W) :-
+    arc(G, U, V, W), !.
+new_arc(G, U, V, W) :-
+    arc(G, V, U, W), !.
 
 new_arc(G, U, V, Weight) :-
-    U \= V,
-    Weight > 0,
+    Weight >= 0,
     vertex(G, U),
     vertex(G, V),
-    assert(arc(G, U, V, Weight)),
-    assert(arc(G, V, U, Weight)), !.
+    retract(arc(G, U, V, _)),
+    retract(arc(G, V, U, _)), !,
+    asserta(arc(G, V, U, Weight)).
+
+new_arc(G, U, V, Weight) :-
+    Weight >= 0,
+    vertex(G, U),
+    vertex(G, V),
+    retract(arc(G, V, U, _)), !,
+    asserta(arc(G, V, U, Weight)).
+    
+
+new_arc(G, U, V, Weight) :-
+    Weight >= 0,
+    vertex(G, U),
+    vertex(G, V), !,
+    asserta(arc(G, U, V, Weight)).
+
+    
 
 new_arc(G, U, V) :-
     new_arc(G, U, V, 1).
 
-arcs(G, Es) :-
-    findall(arc(G, U, V, Weight), arc(G, U, V, Weight), Es).
 
-neighbors(G, V, Ns) :-
-    findall(arc(G, V, U, W), arc(G, V, U, W), Ns).
+
+graph_arcs(G, Es) :-
+    var(Es), !,
+    findall(arc(G, U, V, W), arc(G, V, U, W), As),
+    findall(arc(G, U, V, W), arc(G, U, V, W), Bs),
+    append(As, Bs, Es).
+
+graph_arcs(G, Es) :-
+    findall(arc(G, U, V, W), arc(G, U, V, W), As),
+    sort(As, SortedAs),
+    sort(Es, SortedAs).
+
+
+vertex_neighbors(G, V, Ns) :-
+    nonvar(Ns),
+    vertex(G, V),
+    vertex_neighbors(G, V, N),
+    sort(N, SortedNs),
+    sort(Ns, SortedNs).
+
+vertex_neighbors(G, V, Ns) :-
+    vertex(G, V),
+    findall(arc(G, V, U, Weight), arc(G, U, V, Weight), As),
+    findall(arc(G, V, U, Weight), arc(G, V, U, Weight), Bs),
+    append(As, Bs, Ns).
+
+
+
+    
+adjs(G, V, Vs) :-
+    nonvar(Vs),
+    vertex(G, V),
+    adjs(G, V, As),
+    sort(As, SortedAs),
+    sort(Vs, SortedAs).
+
 
 adjs(G, V, Vs) :-
-    findall(vertex(G, U), arc(G, V, U, _), Vs).
+    vertex(G, V),
+    findall(vertex(G, U), arc(G, V, U, _), As),
+    findall(vertex(G, U), arc(G, U, V, _), Bs),
+    append(As, Bs, Vs).
 
 list_arcs(G) :-
+    graph(G),
     listing(arc(G, _, _, _)).
-
 list_graph(G) :-
     list_vertices(G),
     list_arcs(G).
-
 read_graph(G, FileName) :-
     string_concat(_, '.csv', FileName),
     exists_file(FileName),
-    graph(G), !,
+    csv_read_file(FileName, Rows, [functor(arc), separator(0'\t)]),
     delete_graph(G),
-    csv_read_file(FileName, Rows, [functor(arc), separator(0'\t)]),
     new_graph(G),
     graph_from_rows(G, Rows).
 
-read_graph(G, FileName) :-
-    string_concat(_, '.csv', FileName),
-    exists_file(FileName),
-    csv_read_file(FileName, Rows, [functor(arc), separator(0'\t)]),
-    new_graph(G),
-    graph_from_rows(G, Rows).
 
 graph_from_rows(G, []) :- graph(G), !.
 graph_from_rows(G, [arc(U, V, Weight) | Rows]) :-
@@ -86,8 +151,11 @@ graph_from_rows(G, [arc(U, V, Weight) | Rows]) :-
     new_arc(G, U, V, Weight),
     graph_from_rows(G, Rows), !.
 
+
 write_graph(G, FileName) :-
     write_graph(G, FileName, graph).
+
+
 
 write_graph(G, FileName, graph) :-
     string_concat(_, '.csv', FileName),
@@ -99,13 +167,12 @@ write_graph(G, FileName, graph) :-
 
 write_graph(G, FileName, edges) :-
     string_concat(_, '.csv', FileName),
-    arcs(_, Es),
-    check_arcs(Es, G, Zs), !,
+    check_arcs(G, Zs), !,
     open(FileName, write, Out),
     close(Out),
     csv_write_file(FileName, Zs, [functor(arc), separator(0'\t)]).
 
-check_arcs(_, [], []) :- !.
-check_arcs(Es, [arc(G, U, V, Weight) | As], [arc(U, V, Weight) | Zs]) :-
-    member(arc(G, U, V, Weight), Es), !,
-    check_arcs(Es, As, Zs).
+check_arcs([], []) :- !.
+check_arcs([arc(G, U, V, Weight) | As], [arc(U, V, Weight) | Zs]) :-
+    arc(G, U, V, Weight),
+    check_arcs(As, Zs), !.
