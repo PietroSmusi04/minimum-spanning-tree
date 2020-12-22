@@ -7,7 +7,28 @@ PROJECT: MANIPULATION OF GRAPHS AND HEAPS TO GENERATE ITS MINIMUM
 SPANNING TREES
 ********************************************************************************
 
-INTRODUCTION
+Summary
+1. INTRODUCTION
+2. GRAPHS API
+    2.1 USAGE
+        2.1.1 GRAPHS MANIPULATION
+        2.1.2 QUERYING GRAPHS INFORMATIONS
+        2.1.3 INTERACTING WITH THE FILE SYSTEM
+        2.1.4 MINIMUM SPANNING TREE
+    2.2 EXAMPLES
+        2.2.1 GRAPHS MANIPULATION
+        2.2.2 QUERYING INFORMATIONS
+        2.2.3 INTERACTING WITH THE FILE SYSTEM
+        2.2.4 FINDING THE MINIMUM SPANNING TREE
+
+3. HEAPS API
+    3.1 USAGE
+        3.1.1 HEAPS MANIPULATION
+        3.1.2 QUERYING HEAPS INFORMATIONS
+    3.2 EXAMPLES
+
+
+1. INTRODUCTION
 This project contains mainly two libraries: Graphs and MinHeap.
 Combining these two APIs, it is possible to find the Minimum spanning tree of
 undirected graphs.
@@ -15,14 +36,15 @@ undirected graphs.
 Prerequisites: SWI-prolog installed. Tested on version 8.2.1 (64 bits).
 
 --------------------------------------------------------------------------------
-GRAPHS API
+2. GRAPHS API
 --------------------------------------------------------------------------------
 You can use this API for creating, manipulating and getting informations about
 directed graphs.
 
-USAGE
+2.1 USAGE
 
-GRAPHS MANIPULATION
+2.1.1 GRAPHS MANIPULATION
+
 Creating a graph
 new_graph(G).
 this predicate adds the graph G to the knowledge base, in order to be
@@ -39,9 +61,12 @@ of those don't exist, it doesn't create any arc. This predicate is always true.
 
 Deleting a graph
 delete_graph(G).
+
+
 this predicate deletes the graph G. It is always true.
 
-QUERYING INFORMATIONS ON GRAPHS
+
+2.1.2 QUERYING INFORMATIONS ON GRAPHS
 
 Getting a list containing all the elemens of a graph
 graph_vertices(G, Vs).
@@ -72,7 +97,7 @@ adjs(G, V, Vs).
 this predicate is true if G is a graph, V is a vertex member of G and Vs is a
 list containing all of the vertices directly connected to V in G.
 
-INTERACTING WITH THE FILE SYSTEM
+2.1.3 INTERACTING WITH THE FILE SYSTEM
 This program allows to save and load lists of arcs, operating on csv files whose
 separator is tab. Each row is a arc and its structure is
     U   V   42
@@ -89,10 +114,15 @@ only if FileName ends with '.csv'.
 Reading a graph to file
 read_graph(G, FileName).
 this predicate allows to  read a sequence of arcs from FileName and add them to
-G. If G exists, before reading the file, it destroys all of its vertices and arcs.
+G. If G exists, before reading the file, it destroys all of its vertices and
+arcs.
 
 
-MINIMUM SPANNING TREE
+
+
+
+2.1.4 FINDING THE MINIMUM SPANNING TREE
+
 building the tree starting from a source
 mst_prim(G, Source).
 this predicate builds the G's minimum spanning tree by asserting two types of
@@ -110,195 +140,167 @@ if they have the same weight, then they are ordered alphabetically by adjacent
 vertex's name.
 
 
+2.2 EXAMPLES
 
+2.2.1 GRAPHS MANIPULATION
+Suppose you want to create a graph having these (undirected) arc and vertices:
 
+a -> b weight 4
+a -> h weight 8
+b -> c weight 8
+c -> d weight 7
+d -> e weight 9
+e -> f weight 10
+d -> f weight 14
+f -> g weight 2
+g -> h weight 1
+b -> h weight 11
+g -> i weight 6
+h -> i weight 7
+i -> c weight 2
+c -> f weight 4
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-In order to crete a graph, you must create the graph itself:
-new_graph(g).
-true.
-
-this will add a graph to the program data.
-If you want to create a vertex, just run:
+First create a graph:
 
 ?- new_graph(g).
-this predicate is always true.
+true.
 
-To create a vertex, for example the vertex a, in the graph g, you need to run
-the predicate:
+Now, let's add the needed vertices:
 
 ?- new_vertex(g, a).
-
-this predicate is always true.
-
-assume you have two vertices, a and b. If you want to connect them with
-a weighted arc, type:
-
-?- new_arc(g, a, b, 2).
-This will create one single arc weightd 2.
-
-If you want connect two vertices with an arc weighted 1, you can type:
-
-?- new_arc(G, V, U).
-
-NOTE: calling new_arc/4 on a pre-existing arc, will be replace it.
-
-You can delete a graph and all its vertices and arcs:
-
-?- delete_graph(g).
-
-
-GETTING INFORMATIONS ABOUT GRAPHS
-
-It is possibile to get a list of arcs or vertices from a graph. For example:
-if you create thw following graph and add to it some vertices/arcs,
+true.
+?- new_vertex(g, b).
+true.
+?- new_vertex(g, c).
+true.
+?- new_vertex(g, d).
+true.
+?- new_vertex(g, e).
+true.
+?- new_vertex(g, f).
+true.
+?- new_vertex(g, g).
+true.
+?- new_vertex(g, h).
+true.
+?- new_vertex(g, i).
+true.
 
 
-    ?- new_graph(g).
-    true.
-    ?- new_vertex(g, a).
-    true.
-    
-    ?- new_vertex(g, b).
-    true.
-    
-    ?- new_arc(g, a, b, 2).
-    true.
+Now you can connect the vertices:
 
-running the following preticates will result in:
+?- new_arc(g, a, b, 4).
+true.
+?- new_arc(g, a, h, 8).
+true.
+?- new_arc(g, b, c, 8).
+true.
+?- new_arc(g, b, h, 11).
+true.
+?- new_arc(g, h, g). //(automatically sets its weight to 1).
+true.
+?- new_arc(g, g, f, 2).
+true.
+?- new_arc(g, f, c, 4).
+true.
+?- new_arc(g, c, i, 2).
+true.
+?- new_arc(g, i, h, 7).
+true.
+?- new_arc(g, i, g, 6).
+true.
+?- new_arc(g, c, d, 7).
+true.
+?- new_arc(g, d, e, 9).
+true.
+?- new_arc(g, d, f, 14).
+true.
+?- new_arc(g, e, f, 10).
+true.
 
-?- graph_vertices(g, Vs).
-Vs = [vertex(g, b), vertex(g, a)].
 
-?- graph_arcs(g, Vs).
-Vs = [arc(g, a, b, 2), arc(g, b, a, 2)].
+If you don't need g anymore:
+delete_graph(g).
+true.
 
-They also work in the opposite way, by specifying a list to be verified.
+2.2.2 GETTING INFORMATIONS
 
-You can also check the list of the asserted arcs, vertices or both:
+By assuming that there is the previously created graph in the knowledge base:
+list_verties(g).
+:- dynamic vertex/2.
+
+vertex(g, i).
+vertex(g, h).
+vertex(g, g).
+vertex(g, f).
+vertex(g, e).
+vertex(g, d).
+vertex(g, c).
+vertex(g, b).
+vertex(g, a).
+
+true.
 
 ?- list_arcs(g).
 :- dynamic arc/4.
 
-arc(g, b, a, 2).
+arc(g, d, f, 14).
+arc(g, c, f, 4).
+arc(g, i, g, 6).
+arc(g, i, c, 2).
+arc(g, i, h, 7).
+arc(g, b, h, 11).
+arc(g, a, h, 8).
+arc(g, g, h, 1).
+arc(g, g, f, 2).
+arc(g, e, f, 10).
+arc(g, e, d, 9).
+arc(g, c, d, 7).
+arc(g, c, b, 8).
+arc(g, a, b, 4).
 
 true.
 
+NOTE: as you can see, by listing the arcs only arcs in one directions are shown.
+that is because internally was more convenient in terms of memory using a single
+assertion for representing a bidirectional arc.
 
-
-?- list_vertices(d).
+?- list_graph(g).
 :- dynamic vertex/2.
 
-vertex(g, b).
-vertex(g, a).
-
-true.
-
-
-
-
-?- list_graph(d).
-:- dynamic vertex/2.
-
+vertex(g, i).
+vertex(g, h).
+vertex(g, g).
+vertex(g, f).
+vertex(g, e).
+vertex(g, d).
+vertex(g, c).
 vertex(g, b).
 vertex(g, a).
 
 :- dynamic arc/4.
 
-arc(g, b, a, 2).
+arc(g, d, f, 14).
+arc(g, c, f, 4).
+arc(g, i, g, 6).
+arc(g, i, c, 2).
+arc(g, i, h, 7).
+arc(g, b, h, 11).
+arc(g, a, h, 8).
+arc(g, g, h, 1).
+arc(g, g, f, 2).
+arc(g, e, f, 10).
+arc(g, e, d, 9).
+arc(g, c, d, 7).
+arc(g, c, b, 8).
+arc(g, a, b, 4).
 
 true.
 
-NOTE: as you can see, only arcs in one direction are asserted in the knowledge
-base. That's because in this way, the queries are more efficent and the program
-requires less memory to be ran.
 
+These two predicates will genereate lists of all the arcs/vertices members of g:
 
-
-Given the previous graph, you can also querying the list of arcs starting from
-a vertex:
-
-?- vertex_neighbors(g, a, X).
-X = [arc(g, a, b, 2)].
-
-and, similarly, querying the list of arcs:
-
-?- adjs(g, a, Vs).
-Vs = [vertex(g, b)].
-
-
-
-INTERACTING WITH THE FILE SYSTEM
-It is also possible reading and writing graphs to the File System.
-In particular, if you want to load a graph from a file, it must be a CSV with
-tab as separator, and each row must have this format:
-
-    a   b   2
-
-each row represents a arc, where a and b are vertices, and 2 is the weight.
-
-Usage of read_graph/2:
-
-read_graph(G, FileName),
-
-where FileName MUST end with .csv.
-
-NOTE: if G is a pre-existig graph, the query will destroy it.
-
-Writing a graph
-There are two modes for writing a graph: graph and edges.
-
-Graph mode:
-
-?- write_graph(G, FileName, graph).
-true.
-In this case, G is a graph name.
-
-Not specifying the third argument will lead to a Graph mode writing:
-?- write_graph(G, FileName).
-true.
-
-
-Edges mode:
-
-?- write_graph(G, FileName, edges).
-true.
-Now, G must be a list of existing arcs.
-
-
-
-
-MINIMUM SPANNING TREE
-For retrieving the minimum spanning tree from a graph, there are two main
-predicates:
-
-Assume you have an undirected graph g like this:
-?- graph_vertices(g, Vs).
-Vs = [vertex(g,i),vertex(g,h),vertex(g,g),vertex(g,f),vertex(g,e),vertex(g,d),
-      vertex(g,c),vertex(g,b),vertex(g,a)].
-
-?- graph_arcs(g, Es).
+?- graph_arcs(G, Es).
 Es = [arc(g,f,d,14),arc(g,f,c,4),arc(g,g,i,6),arc(g,c,i,2),arc(g,h,i,7),
       arc(g,h,b,11),arc(g,h,a,8),arc(g,h,g,1),arc(g,f,g,2),arc(g,f,e,10),
       arc(g,d,e,9),arc(g,d,c,7),arc(g,b,c,8),arc(g,b,a,4),arc(g,d,f,14),
@@ -306,84 +308,212 @@ Es = [arc(g,f,d,14),arc(g,f,c,4),arc(g,g,i,6),arc(g,c,i,2),arc(g,h,i,7),
       arc(g,a,h,8),arc(g,g,h,1),arc(g,g,f,2),arc(g,e,f,10),arc(g,e,d,9),
       arc(g,c,d,7),arc(g,c,b,8),arc(g,a,b,4)].
 
+Note: in this case, arcs in both directions are generated for more consistence.
 
-By querying:
+?- graph_vertices(g, Vs).
+Vs = [vertex(g,i),vertex(g,h),vertex(g,g),vertex(g,f),vertex(g,e),vertex(g,d),
+      vertex(g,c),vertex(g,b),vertex(g,a)].
+
+These predicates are bidirectional, and its results are independent from the
+order in the list.
+
+
+Now, if you want to get the lists of arcs starting from c or all of its directly
+connected vertices:
+
+?- vertex_neighbors(g, c, Es).
+Es = [arc(g,c,i,2),arc(g,c,f,4),arc(g,c,d,7),arc(g,c,b,8)].
+
+This works also in the opposite, regardless of the order in the list:
+
+?- vertex_neighbors(G, V, [arc(g,c,i,2), arc(g,c,f,4), arc(g,c,b,8),
+                           arc(g,c,d,7)]).
+G = g,
+V = c ;
+false.
+
+It is false because the interpreter works in order to find every possible
+combination, taking advantage from the backtracking.
+
+
+2.2.3 INTERACTING WITH THE FILE SYSTEM
+
+If you want to save g to 'my_graph.csv', you can type:
+write_graph(g, 'my_graph.csv').
+which is equivalent to 
+write_graph(g, 'my_graph.csv', graph).
+
+If you only need to save few arcs, you can use the edges mode:
+write_graph([arc(g,f,d,14), arc(g,f,c,4), arc(g,g,i,6], 'my_graph.csv', edges).
+This will save the specified arc to the file.
+
+Suppose you have the whole graph g in 'my_graph.csv'. If you want to load it in
+the graph boh:
+read_graph(boh, 'my_graph.csv').
+This cleans out all the arcs and vertices contained in boh, and adds all the
+arcs contain.
+printing the graph will lead to:
+
+?- list_graph(boh).
+:- dynamic vertex/2.
+
+vertex(boh, i).
+vertex(boh, h).
+vertex(boh, g).
+vertex(boh, f).
+vertex(boh, e).
+vertex(boh, d).
+vertex(boh, c).
+vertex(boh, b).
+vertex(boh, a).
+
+:- dynamic arc/4.
+
+arc(boh, d, f, 14).
+arc(boh, c, f, 4).
+arc(boh, i, g, 6).
+arc(boh, i, c, 2).
+arc(boh, i, h, 7).
+arc(boh, b, h, 11).
+arc(boh, a, h, 8).
+arc(boh, g, h, 1).
+arc(boh, g, f, 2).
+arc(boh, e, f, 10).
+arc(boh, e, d, 9).
+arc(boh, c, d, 7).
+arc(boh, c, b, 8).
+arc(boh, a, b, 4).
+
+true.
+
+
+
+2.2.4 FINDING THE MINIMUM SPANNING TREE
+Suppose to have the graph g created on point 2.2.1, and you need to build the
+minimum spanning tree starting from the vertex a:
 
 ?- mst_prim(g, a).
 true.
 
-The program will generate the tree by asserting vertex_previous/3 relationships
-between vertices:
-vertex_previous(G, U, V).
-where G is the graph name,
+Then, you can traverse in pre-order the previously built tree, starting from any
+source:
 
-and vertex_key/3 facts:
-vertex_key/vertewhich represent the weight of a arc which
-connects a certain vertex .
-
-If you want to see how that tree visited by preorder traversal appears, then
-write:
-
-?- mst_get(g, a, X).
-X = [arc(g, a, b, 4), arc(g, a, h, 8), arc(g, h, g, 1), arc(g, g, f, 2),
-     arc(g, f, c, 4), arc(g, c, i, 2), arc(g, c, d, 7), arc(g, d, e, 9)].
+?- mst_get(g, c, PreorderTree).
+PreorderTree = [arc(g, c, i, 2), arc(g, c, f, 4), arc(g, f, g, 2),
+                arc(g, g, h, 1), arc(g, h, a, 8), arc(g, a, b, 4),
+                arc(g, c, d, 7), arc(g, d, e, 9)].
 
 
-You can also visit it starting from a different source:
 
-?- mst_get(g, c, X).
-X = [arc(g,c,i,2),arc(g,c,f,4),arc(g,f,g,2),arc(g,g,h,1),arc(g,h,a,8),
-     arc(g,a,b,4),arc(g,c,d,7),arc(g,d,e,9)].
 
-The arcs starting from a vertex are ordered by weight, and if they are the same,
-they are ordered alphabetically by the name of its destination vertices.
+
+
 
 
 
 --------------------------------------------------------------------------------
-MINHEAP LIBRARY
+3. MINHEAP API 
 --------------------------------------------------------------------------------
+3.1 USAGE
 
-Implementing an efficient Prim's Algorithm implies the utilization of a Min
-priority queue. This project also implements this part.
+3.1.1 HEAP MANIPULATION
 
-The implementation of this library is independent from the graphs API. So, you
-can use it by inserting every type of object you want.
+new_heap(H).
+this predicate adds the heap H to the knowledge base, if it doesn't exist. It is
+always true.
 
-USAGE
+delete_heap(H).
+this predicate deletes the heap H and all of its entries. It is always true.
 
-In order to create a Heap, you must tell the program that H is a heap:
+heap_insert(H, K, V).
+this predicate inserts the entry with key K and value V (and it is true), only
+if V is not already present in the heap.
+
+heap_extract(H, K, V).
+this predicate is true if the entry with key K and value V is removed from the
+heap.
+
+modify_key(H, NewKey, OldKey, V).
+this predicate is true if the entry of H with key Oldkey and value V is replaced
+by the entry with key NewKey and value V.
+
+
+
+3.1.2 GETTING INFORMATIONS
+
+heap_has_size(H, S).
+this predicate is true if the heap H contains S elements.
+
+heap_empty(H).
+this predicate is true if the heap H has size 0
+
+heap_not_empty(H)
+the opposite of heap_empty/1.
+
+heap_head(H, K, V).
+this predicate is true if the element with the minimum key K has value V.
+
+list_heap(H).
+this predicate lists everything asserted about the heap H.
+In particular, a heap is asserted as heap(H, S), where S is its size; every
+entry of H is asserted as heap_entry(H, P, K, V), where P is the position, K is
+its key and V is the associated value.
+
+
+
+
+3.2 EXAMPLES
+
+3.2.1 HEAP MANIPULATION
 
 ?- new_heap(h).
 true.
+this will add the heap H to the knowledge base.
 
-This will assert the fact heap(h, 0), where 0 is the initial heap size.
+If you want to insert the element with key 3 and value randomValue:
+heap_insert(h, 3, randomValue).
+true.
 
-A heap allows the following operations:
+If you insert a second element with e key < 3, for example:
+?- heap_insert(h, 2, anotherValue).
+true.
+the head will be moved at position 2 and the new element will become the head.
 
-heap_insert(H, K, V): This predicate is true if H, K, V are non-variables, H is
-a heap name, K is a numeric key, and V is a non existing value in the heap.
-At the end of its execution, there will be the fact
+In fact, extracting from h will result in:
+?- heap_extract(h, K, V).
+K = 2,
+V = anotherValue.
 
-heap_entry(H, P, K, V).
-where P is the heap position of the inserted elements.
+Now, in h there is only  the element containing randomValue. if you want to
+change its key from 3 to 1, just run:
+?- modify_key(h, 1, 3, randomValue).
+true.
 
-heap_head(H, K, V): true if K and V are the minimum key and the associated
-value.
 
-heap_extract(H, K, V): the same as heap_head, but it also removes it from the
-heap.
+3.2.2 GETTING INFORMATIONS
+Suppose you have the heap created at the previous point. You can retrieve its
+head by running:
+?- heap_head(h, K, V).
+K = 2,
+V = anotherValue.
+You'll get the first element.
 
-heap_has_size(H, S): true if S is the heap size of H.
+If you want to know h's size:
+?- heap_has_size(h, S).
+S = 2.
 
-heap_empty(H): true if H contains no elements.
-heap_not_empty(H): true if H contains at least one lement.
+Or check if h is empty:
+?- heap_empty(h).
+false.
+Similarly:
+?- heap_not_empty(h).
+true.
 
-delete_heap(H): removes a heap from the program data.
+You can also list all the asserted dynamic facts representing h:
+?- list_heap(h).
+:- dynamic heap_entry/4.
 
-modify_key(H, NewKey, OldKey, V): That is not a common operation in this type of
-data structure, but it's useful during the prim'a algorithm execution. It
-changes the entry <OldKey, Value> to <NewKey, Value>.
+heap_entry(h, 2, 3, randomValue).
+heap_entry(h, 1, 2, anotherValue).
 
-list_heap(H): this predicate prints out everything asserted in the program which
-is relative to H.
+true.
