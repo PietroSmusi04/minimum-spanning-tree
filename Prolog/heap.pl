@@ -131,8 +131,21 @@ list_heap(H) :-
     listing(heap_entry(H, _, _, _)).
 
 
+modify_key(_, NewKey, NewKey, _) :- !.
+
 modify_key(H, NewKey, OldKey, V) :-
+    NewKey < OldKey, !,
     heap_entry(H, P, OldKey, V),
     retract(heap_entry(H, P, OldKey, V)),
     asserta(heap_entry(H, P, NewKey, V)),
     swim(H, P).
+
+
+
+modify_key(H, NewKey, OldKey, V) :-
+    NewKey > OldKey, !,
+    heap_entry(H, P, OldKey, V),
+    retract(heap_entry(H, P, OldKey, V)),
+    asserta(heap_entry(H, P, NewKey, V)),
+    sink(H, P).
+

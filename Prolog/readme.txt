@@ -3,7 +3,7 @@ Mat 851637
 
 
 ********************************************************************************
-PROJECT: MANIPULATION OF GRAPHS AND HEAPS TO GENERATE ITS MINIMUM
+MANIPULATION OF GRAPHS AND HEAPS IN ORDER TO GENERATE ITS MINIMUM
 SPANNING TREES
 ********************************************************************************
 
@@ -12,26 +12,25 @@ Summary
 2. GRAPHS API
     2.1 USAGE
         2.1.1 GRAPHS MANIPULATION
-        2.1.2 QUERYING GRAPHS INFORMATIONS
+        2.1.2 QUERYING INFORMATIONS
         2.1.3 INTERACTING WITH THE FILE SYSTEM
-        2.1.4 MINIMUM SPANNING TREE
+        2.1.4 FINDING THE MINIMUM SPANNING TREE
     2.2 EXAMPLES
         2.2.1 GRAPHS MANIPULATION
         2.2.2 QUERYING INFORMATIONS
         2.2.3 INTERACTING WITH THE FILE SYSTEM
         2.2.4 FINDING THE MINIMUM SPANNING TREE
-
 3. HEAPS API
     3.1 USAGE
         3.1.1 HEAPS MANIPULATION
-        3.1.2 QUERYING HEAPS INFORMATIONS
+        3.1.2 QUERYING INFORMATIONS
     3.2 EXAMPLES
 
 
 1. INTRODUCTION
 This project contains mainly two libraries: Graphs and MinHeap.
-Combining these two APIs, it is possible to find the Minimum spanning tree of
-undirected graphs.
+Combining these two APIs, it is possible to find the minimum spanning tree of
+undirected graphs, by using the Prim's algorithm.
 
 Prerequisites: SWI-prolog installed. Tested on version 8.2.1 (64 bits).
 
@@ -58,22 +57,23 @@ Creating an arc
 new_arc(G, U, V, Weight).
 this predicate adds a (bidirectional) arc between the vertices U and V. If one
 of those don't exist, it doesn't create any arc. This predicate is always true.
+NOTE: Self loops are not created. This choice has been taken because this
+project is mainly meant to find the minimum spanning trees, and self loops are
+irrilevant for this purpose.
 
 Deleting a graph
 delete_graph(G).
-
-
 this predicate deletes the graph G. It is always true.
 
 
-2.1.2 QUERYING INFORMATIONS ON GRAPHS
+2.1.2 QUERYING INFORMATIONS 
 
-Getting a list containing all the elemens of a graph
+Getting a list containing all the elements in a graph
 graph_vertices(G, Vs).
-this predicate is true if G is a graph and Vs is a list containing each vertex
-member of G.
+this predicate is true if G is a graph and Vs is a list containing each G's
+vertex member of G.
 graph_arcs(G, Es).
-this predicate is true if G is a graph and Es is a list containing each arc
+this predicate is true if G is a graph and Es is a list containing each G's arc
 member of G.
 
 
@@ -97,7 +97,11 @@ adjs(G, V, Vs).
 this predicate is true if G is a graph, V is a vertex member of G and Vs is a
 list containing all of the vertices directly connected to V in G.
 
+
+
+
 2.1.3 INTERACTING WITH THE FILE SYSTEM
+
 This program allows to save and load lists of arcs, operating on csv files whose
 separator is tab. Each row is a arc and its structure is
     U   V   42
@@ -108,7 +112,7 @@ write_graph(G, FileName, Type).
 this predicate writes all the arcs member of G, respecting the format
 previously described. If Type unifies with graph, then G is a Graph. Else, if
 Type unifies with edges, G is a list of existing arcs. This predicate is true
-only if FileName ends with '.csv'.
+and writes only if FileName ends with '.csv'.
 
 
 Reading a graph to file
@@ -129,15 +133,16 @@ this predicate builds the G's minimum spanning tree by asserting two types of
 facts:
 vertex_previous(G, U, V): V is U's parent in the tree relative to G;
 vertex_key(G, V, K): V is connected to the G's minimum spanning tree by an arc
-with weight K.
+with weight K. If G is not connected, then only the connected part to Source is
+built.
 
-Traversing the Minimum Spanning Tree in Preorder
+Traversing the Minimum Spanning Tree by pre order
 mst_get(G, Source, PreorderTree).
 this predicate is true when Source is a vertex member of G, and PreorderTree is
-the list of the Minimum spanning tree's arcs traversed in Preorder. 
-If a vertex has more starting arcs in the tree, they are ordered by weight, and
-if they have the same weight, then they are ordered alphabetically by adjacent
-vertex's name.
+the list of the Minimum spanning tree's arcs traversed by pre order. 
+If a vertex has more exiting arcs in the tree, they are ordered by weight, and
+if they have the same weight, then they are ordered lexicographically by
+adjacent vertex's name.
 
 
 2.2 EXAMPLES
@@ -308,7 +313,7 @@ Es = [arc(g,f,d,14),arc(g,f,c,4),arc(g,g,i,6),arc(g,c,i,2),arc(g,h,i,7),
       arc(g,a,h,8),arc(g,g,h,1),arc(g,g,f,2),arc(g,e,f,10),arc(g,e,d,9),
       arc(g,c,d,7),arc(g,c,b,8),arc(g,a,b,4)].
 
-Note: in this case, arcs in both directions are generated for more consistence.
+Note: in this case, arcs in both directions are generated for more consistency.
 
 ?- graph_vertices(g, Vs).
 Vs = [vertex(g,i),vertex(g,h),vertex(g,g),vertex(g,f),vertex(g,e),vertex(g,d),
@@ -332,8 +337,8 @@ G = g,
 V = c ;
 false.
 
-It is false because the interpreter works in order to find every possible
-combination, taking advantage from the backtracking.
+The interpreter works in order to find every possible combination, taking
+advantage from the backtracking.
 
 
 2.2.3 INTERACTING WITH THE FILE SYSTEM
@@ -345,7 +350,7 @@ write_graph(g, 'my_graph.csv', graph).
 
 If you only need to save few arcs, you can use the edges mode:
 write_graph([arc(g,f,d,14), arc(g,f,c,4), arc(g,g,i,6], 'my_graph.csv', edges).
-This will save the specified arc to the file.
+This will save the specified arcs to the file.
 
 Suppose you have the whole graph g in 'my_graph.csv'. If you want to load it in
 the graph boh:
@@ -395,7 +400,7 @@ minimum spanning tree starting from the vertex a:
 ?- mst_prim(g, a).
 true.
 
-Then, you can traverse in pre-order the previously built tree, starting from any
+Then, you can traverse by pre order the previously built tree, starting from any
 source:
 
 ?- mst_get(g, c, PreorderTree).

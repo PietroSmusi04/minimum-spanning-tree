@@ -11,12 +11,6 @@ new_graph(G) :-
     asserta(graph(G)), !.
 
 
-
-atomify(X, Y) :-
-    number(X),
-    atom_number(Y, X), !.
-atomify(X, X) :- !.
-
 delete_graph(G) :-
     retract(graph(G)),
     retractall(vertex(G, _)),

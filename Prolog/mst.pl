@@ -65,34 +65,47 @@ mst_get(G, Source, PreorderTree) :-
     retractall(not_visited(G, _)).
 
 
-find_and_atomify_free_neighbors(G, Source, Arcs) :-
+free_neighbors(G, Source, Arcs) :-
     
-    findall(arc(G, Source, AV, K), (vertex_previous(G, V, Source),
-				    atomify(V, AV),
+    findall(arc(G, Source, V, K), (vertex_previous(G, V, Source),
 				    vertex_key(G, V, K),
 				    not_visited(G, V)), As),
     
-    findall(arc(G, Source, AV, K), (vertex_previous(G, Source, V),
-				    atomify(V, AV),
+    findall(arc(G, Source, V, K), (vertex_previous(G, Source, V),
 				    vertex_key(G, Source, K),
 				    not_visited(G, V)), Bs),
     append(As, Bs, Arcs), !.
 
 mst_get_rec(G, Source, PreorderTree) :-
-    find_and_atomify_free_neighbors(G, Source, FreeNeighbors),
+    free_neighbors(G, Source, FreeNeighbors),
     retract(not_visited(G, Source)), !,
-    sort(3, @=<, FreeNeighbors, SortedByName),
+    predsort(arc_name_compare, FreeNeighbors, SortedByName),
     sort(4, =<, SortedByName, SortedNeighbors),
     mst_list_get(G, SortedNeighbors, PreorderTree).
 
 
 mst_get_rec(_, _, _) :- !.
 
+
+/*This custom compare allows not to break the program if numbers in multiple
+ * forms are inserted (e.g only 1 or both 1, '1' and "1").*/
+
+arc_name_compare(<, arc(_, _, V, _), arc(_, _, U, _)) :- 
+    atom_string(V, SV),
+    atom_string(U, SU),
+    SV @< SU, !.
+
+
+arc_name_compare(>, arc(_, _, V, _), arc(_, _, U, _)) :-
+    atom_string(V, SV),
+    atom_string(U, SU),
+    SV @>= SU, !.
+
+
 mst_list_get(_, [], []) :- !.
 mst_list_get(G, [arc(G, V, U, Weight) | Arcs]
-	     , [arc(G, V, NU, Weight) | PreorderTree]) :-
-    numberify(U, NU),
-    mst_get_rec(G, NU, PreorderSubTree),
+	     , [arc(G, V, U, Weight) | PreorderTree]) :-
+    mst_get_rec(G, U, PreorderSubTree),
     mst_list_get(G, Arcs, OtherTree),
     append(PreorderSubTree, OtherTree, PreorderTree).
 
@@ -101,10 +114,3 @@ somma_archi([], 0) :- !.
 somma_archi([arc(_, _, _, W) | Archi], Somma) :-
     somma_archi(Archi, S1), !,
     Somma is S1 + W.
-
-
-
-numberify(X, Y) :-
-    atom_number(X, Y), !.
-
-numberify(X, X) :- !.
