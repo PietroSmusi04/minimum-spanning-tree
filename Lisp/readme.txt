@@ -3,7 +3,7 @@ Mat 851637
 
 
 ********************************************************************************
-PROJECT: MANIPULATION OF GRAPHS AND HEAPS TO GENERATE ITS MINIMUM
+MANIPULATION OF GRAPHS AND HEAPS TO GENERATE ITS MINIMUM
 SPANNING TREES
 ********************************************************************************
 
@@ -13,12 +13,11 @@ Summary
     2.1 USAGE
         2.1.1 GRAPHS MANIPULATION
         2.1.2 GETTING GRAPHS INFORMATIONS
-        2.1.3 MINIMUM SPANNING TREE
+        2.1.3 FINDING THEMINIMUM SPANNING TREE
     2.2 EXAMPLES
         2.2.1 GRAPHS MANIPULATION
         2.2.2 GETTING INFORMATIONS
         2.2.3 FINDING THE MINIMUM SPANNING TREE
-
 3. HEAPS API
     3.1 USAGE
         3.1.1 HEAPS MANIPULATION
@@ -28,8 +27,8 @@ Summary
 
 1. INTRODUCTION
 This project contains mainly two libraries: Graphs and MinHeap.
-Combining these two APIs, it is possible to find the Minimum spanning tree of
-undirected graphs, implementing the Prim's algorithm.
+Combining these two APIs, it is possible to find the minimum spanning tree of
+undirected graphs, by using the Prim's algorithm.
 
 Prerequisites: Installed Common Lisp compiler.
 Tested on sbcl 2.0.11
@@ -47,7 +46,7 @@ any directed graph.
 
 Creating a graph:
 (new-graph graph-id) -> graph-id:
-this function adds the graph graph-id it to the program data.
+this function adds the graph graph-id to the program data.
 
 Deleting a graph:
 (delete-graph graph-id) -> NIL:
@@ -66,7 +65,9 @@ this function connects two vertices with a weighted arc. If those vertices don't
 exist, then it creates them.
 Arcs are represented as lists:
 (arc graph-id vertex1-id vertex2-id weight)
-
+NOTE: Self loops are not created. This choice has been taken because this
+project is mainly meant to find the minimum spanning trees, and self loops are
+irrilevant for this purpose.
 
 
 2.1.2 GETTING INFORMATIONS ON GRAPHS
@@ -102,11 +103,18 @@ In order to generate and retrieve a graph MST, there are two main functions:
 (mst-prim graph-id vertex-id) -> NIL:
 this function builds a hash table containing the parent relationships between
 vertices, and another hash table in which to every vertex there is associated
-the weight of the arc which connects it to the tree.
+the weight of the arc which connects it to the tree. If the graph graph-id  is
+not connected, then only the connected part to Source is built.
+During and after the execution, every vertex has a vertex key, which is the
+weight of the arcs which connect it to the tree, and a previous vertex, which is
+the parent in the tree. If you want to check this parameters:
+(mst-vertex-key graph-id vertex-id) -> key
+(mst-previous graph-id vertex-id) -> previous-id
 
 (mst-get graph-id vertex-id) -> preorder-mst:
-this function returns the list of the tree arcs traversed in preorder, using the
-output produced by mst-prim.
+this function returns the list of the tree arcs traversed by preorder, using the
+output produced by mst-prim. The exiting arcs from a vertex are sorted by
+weight, and if it's the same, then they are sorted by the connected vertex name.
 
 
 2.2 EXAMPLES
@@ -313,5 +321,64 @@ this function searches the entry (old-key V) and it replaces it with
 
 3.1.2 GETTING INFORMATIONS
 
+(heap-empty heap-id) -> boolean:
+this function returns true if the heap identified as heap-id does not contains
+elements.
+
+(heap-head heap-id) -> (list K V):
+this function returns the entry with the minimum key, contained in the heap-rep
+indexed as heap-id.
+
+(heap-print heap-id) -> NIL
+this function prints the heap-rep indexed as heap-id.
 
 
+
+3.2 EXAMPLES
+
+3.2.1 HEAP MANIPULATION
+
+If you want to create a heap identified as h, then write:
+CL-USER> (new-heap 'h)
+#S(HEAP
+   :ID H
+   :SIZE 0
+   :ACTUAL-HEAP #(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+                  0 0 0 0 0 0 0 0 0 0 0 0)
+   :POSITIONS-HASH-TABLE #<HASH-TABLE :TEST EQUAL :COUNT 0 {1034D91433}>)
+
+
+If you want to add some elements to it, for example the entries key-value
+(42, 'my-value), (30, 'another-value):
+CL-USER> (heap-insert 'h 42 'my-value)
+T
+
+
+Now, if you want to change its key from 42 to 2:
+CL-USER> (heap-modify-key 'h 2 42 'my-value)
+T
+
+
+Extracting will result in:
+CL-USER> (heap-extract 'h)
+(2 MY-VALUE)
+
+
+
+3.2.2 GETTING INFORMATIONS
+
+Assume you have already created the heap h described at the previous point.
+You wonder if it is empty. In that case:
+CL-USER> (heap-empty 'h)
+NIL
+
+It is also possible getting the head without extracting it:
+CL-USER> (heap-head 'h)
+(42 MY-VALUE)
+
+
+Now, print the heap:
+CL-USER> (heap-print 'h)
+SIZE: 2,
+ELEMENTS: #((30 ANOTHER-VALUE) (42 MY-VALUE))%
+NIL
