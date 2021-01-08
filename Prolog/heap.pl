@@ -1,4 +1,13 @@
-% -*- Mode : Prolog -*-
+%%% -*- Mode : Prolog -*-
+
+
+%%% heap.pl --
+
+
+
+%%% Gabriele Canesi
+%%%  851637
+
 
 :- dynamic heap_entry/4.
 :- dynamic heap/2.
@@ -25,6 +34,8 @@ heap_not_empty(H) :-
     N > 0.
 
 
+
+% Given the P and Q positions, it swaps them
 swap(H, P, Q) :-
     heap_entry(H, P, KP, VP),
     heap_entry(H, Q, KQ, VQ),
@@ -94,11 +105,11 @@ delete_heap(_) :- !.
 heap_head(H, K, V) :-
     heap_entry(H, 1, K, V).
 
-    
+
+
 heap_insert(H, K, V) :-
     nonvar(H),
     nonvar(K),
-    nonvar(V),
     \+ heap_entry(H, _, _, V),
     heap_has_size(H, S),
     retract(heap(H, S)),
@@ -133,6 +144,8 @@ list_heap(H) :-
 
 modify_key(_, NewKey, NewKey, _) :- !.
 
+
+% Case old key greater than new key
 modify_key(H, NewKey, OldKey, V) :-
     NewKey < OldKey, !,
     heap_entry(H, P, OldKey, V),
@@ -141,7 +154,7 @@ modify_key(H, NewKey, OldKey, V) :-
     swim(H, P).
 
 
-
+% case new key greater than old key
 modify_key(H, NewKey, OldKey, V) :-
     NewKey > OldKey, !,
     heap_entry(H, P, OldKey, V),
@@ -149,3 +162,6 @@ modify_key(H, NewKey, OldKey, V) :-
     asserta(heap_entry(H, P, NewKey, V)),
     sink(H, P).
 
+
+
+%%% end of file -- heap.pl --

@@ -1,13 +1,22 @@
 Gabriele Canesi
-Mat 851637
+Matricola 851637
 
 
-********************************************************************************
-MANIPULATION OF GRAPHS AND HEAPS IN ORDER TO GENERATE ITS MINIMUM
-SPANNING TREES
-********************************************************************************
 
-Summary
+	MANIPULATION OF GRAPHS AND HEAPS IN ORDER TO GENERATE ITS
+		         MINIMUM SPANNING TREES
+
+
+
+
+This file explains how the following APIs work. For more specific informations
+about the implementation choices, i wrote some comments in the source code.
+
+
+
+
+      	  		 	  Summary
+				  
 1. INTRODUCTION
 2. GRAPHS API
     2.1 USAGE
@@ -25,20 +34,33 @@ Summary
         3.1.1 HEAPS MANIPULATION
         3.1.2 QUERYING INFORMATIONS
     3.2 EXAMPLES
+    	3.2.1 HEAPS MANIPULATION
+	3.2.2 QUERYING INFORMATIONS
 
 
-1. INTRODUCTION
+
+
+		          1. INTRODUCTION
+		       
 This project contains mainly two libraries: Graphs and MinHeap.
 Combining these two APIs, it is possible to find the minimum spanning tree of
-undirected graphs, by using the Prim's algorithm.
+undirected graphs with non negative weights, by using the Prim's algorithm.
 
 Prerequisites: SWI-prolog installed. Tested on version 8.2.1 (64 bits).
 
---------------------------------------------------------------------------------
-2. GRAPHS API
---------------------------------------------------------------------------------
+
+
+
+
+
+
+
+	       		   2. GRAPHS API
+
+
+
 You can use this API for creating, manipulating and getting informations about
-directed graphs.
+undirected graphs.
 
 2.1 USAGE
 
@@ -52,14 +74,13 @@ manipulated. It is always true.
 Creating a vertex
 new_vertex(G, V).
 this predicate adds the vertex V to the graph G, if it exists.
+It fails if G is not a graph.
 
 Creating an arc
 new_arc(G, U, V, Weight).
 this predicate adds a (bidirectional) arc between the vertices U and V. If one
-of those don't exist, it doesn't create any arc. This predicate is always true.
-NOTE: Self loops are not created. This choice has been taken because this
-project is mainly meant to find the minimum spanning trees, and self loops are
-irrilevant for this purpose.
+of those don't exist, it creates it. It fails if Weight is not a number or if it
+is a negative number.
 
 Deleting a graph
 delete_graph(G).
@@ -72,10 +93,13 @@ Getting a list containing all the elements in a graph
 graph_vertices(G, Vs).
 this predicate is true if G is a graph and Vs is a list containing each G's
 vertex member of G.
+
 graph_arcs(G, Es).
 this predicate is true if G is a graph and Es is a list containing each G's arc
 member of G.
-
+NOTE: since all the graphs in this API are undirected, only arcs in one
+direction are considered. That because a double representation is redundant in
+this case.
 
 
 Printing the facts which describe stored in the knowledge base
@@ -93,6 +117,9 @@ Getting lists of connected objects to a specific vertex
 vertex_neighbors(G, V, Ns).
 this predicate is true if G is a graph, V is a vertex member of G and Ns is a
 list containing all the arcs starting from V in the graph G.
+
+NOTE: Here self loops are not considered.
+
 adjs(G, V, Vs).
 this predicate is true if G is a graph, V is a vertex member of G and Vs is a
 list containing all of the vertices directly connected to V in G.
@@ -103,9 +130,9 @@ list containing all of the vertices directly connected to V in G.
 2.1.3 INTERACTING WITH THE FILE SYSTEM
 
 This program allows to save and load lists of arcs, operating on csv files whose
-separator is tab. Each row is a arc and its structure is
-    U   V   42
-where U and V are vertices, and 42 is the weight.
+separator is tab. Each row is an arc and its structure is
+    U   V   W
+where U and V are vertices, and W is the weight.
 
 Writing a graph to a file
 write_graph(G, FileName, Type).
@@ -131,7 +158,7 @@ building the tree starting from a source
 mst_prim(G, Source).
 this predicate builds the G's minimum spanning tree by asserting two types of
 facts:
-vertex_previous(G, U, V): V is U's parent in the tree relative to G;
+vertex_previous(G, U, V): V is U's parent in the G's MST;
 vertex_key(G, V, K): V is connected to the G's minimum spanning tree by an arc
 with weight K. If G is not connected, then only the connected part to Source is
 built.
@@ -196,31 +223,31 @@ Now you can connect the vertices:
 
 ?- new_arc(g, a, b, 4).
 true.
-?- new_arc(g, a, h, 8).
-true.
-?- new_arc(g, b, c, 8).
-true.
-?- new_arc(g, b, h, 11).
-true.
-?- new_arc(g, h, g). //(automatically sets its weight to 1).
-true.
-?- new_arc(g, g, f, 2).
-true.
-?- new_arc(g, f, c, 4).
-true.
-?- new_arc(g, c, i, 2).
-true.
-?- new_arc(g, i, h, 7).
-true.
-?- new_arc(g, i, g, 6).
+?- new_arc(g, c, b, 8).
 true.
 ?- new_arc(g, c, d, 7).
 true.
-?- new_arc(g, d, e, 9).
-true.
-?- new_arc(g, d, f, 14).
+?- new_arc(g, e, d, 9).
 true.
 ?- new_arc(g, e, f, 10).
+true.
+?- new_arc(g, g, f, 2).
+true.
+?- new_arc(g, g, h). %(automatically sets its weight to 1).
+true.
+?- new_arc(g, a, h, 8).
+true.
+?- new_arc(g, b, h, 11).
+true.
+?- new_arc(g, i, h, 7).
+true.
+?- new_arc(g, i, c, 2).
+true.
+?- new_arc(g, i, g, 6).
+true.
+?- new_arc(g, c, f, 4).
+true.
+?- new_arc(g, d, f, 14).
 true.
 
 
@@ -249,26 +276,24 @@ true.
 ?- list_arcs(g).
 :- dynamic arc/4.
 
-arc(g, d, f, 14).
-arc(g, c, f, 4).
-arc(g, i, g, 6).
-arc(g, i, c, 2).
-arc(g, i, h, 7).
-arc(g, b, h, 11).
-arc(g, a, h, 8).
-arc(g, g, h, 1).
-arc(g, g, f, 2).
-arc(g, e, f, 10).
-arc(g, e, d, 9).
-arc(g, c, d, 7).
-arc(g, c, b, 8).
-arc(g, a, b, 4).
+arc(g, f, d, 14).
+arc(g, f, c, 4).
+arc(g, g, i, 6).
+arc(g, c, i, 2).
+arc(g, h, i, 7).
+arc(g, h, b, 11).
+arc(g, h, a, 8).
+arc(g, h, g, 1).
+arc(g, f, g, 2).
+arc(g, f, e, 10).
+arc(g, d, e, 9).
+arc(g, d, c, 7).
+arc(g, b, c, 8).
+arc(g, b, a, 4).
 
 true.
 
-NOTE: as you can see, by listing the arcs only arcs in one directions are shown.
-that is because internally was more convenient in terms of memory using a single
-assertion for representing a bidirectional arc.
+
 
 ?- list_graph(g).
 :- dynamic vertex/2.
@@ -285,20 +310,20 @@ vertex(g, a).
 
 :- dynamic arc/4.
 
-arc(g, d, f, 14).
-arc(g, c, f, 4).
-arc(g, i, g, 6).
-arc(g, i, c, 2).
-arc(g, i, h, 7).
-arc(g, b, h, 11).
-arc(g, a, h, 8).
-arc(g, g, h, 1).
-arc(g, g, f, 2).
-arc(g, e, f, 10).
-arc(g, e, d, 9).
-arc(g, c, d, 7).
-arc(g, c, b, 8).
-arc(g, a, b, 4).
+arc(g, f, d, 14).
+arc(g, f, c, 4).
+arc(g, g, i, 6).
+arc(g, c, i, 2).
+arc(g, h, i, 7).
+arc(g, h, b, 11).
+arc(g, h, a, 8).
+arc(g, h, g, 1).
+arc(g, f, g, 2).
+arc(g, f, e, 10).
+arc(g, d, e, 9).
+arc(g, d, c, 7).
+arc(g, b, c, 8).
+arc(g, b, a, 4).
 
 true.
 
@@ -306,12 +331,9 @@ true.
 These two predicates will genereate lists of all the arcs/vertices members of g:
 
 ?- graph_arcs(G, Es).
-Es = [arc(g,f,d,14),arc(g,f,c,4),arc(g,g,i,6),arc(g,c,i,2),arc(g,h,i,7),
-      arc(g,h,b,11),arc(g,h,a,8),arc(g,h,g,1),arc(g,f,g,2),arc(g,f,e,10),
-      arc(g,d,e,9),arc(g,d,c,7),arc(g,b,c,8),arc(g,b,a,4),arc(g,d,f,14),
-      arc(g,c,f,4),arc(g,i,g,6),arc(g,i,c,2),arc(g,i,h,7),arc(g,b,h,11),
-      arc(g,a,h,8),arc(g,g,h,1),arc(g,g,f,2),arc(g,e,f,10),arc(g,e,d,9),
-      arc(g,c,d,7),arc(g,c,b,8),arc(g,a,b,4)].
+Es = [arc(g,d,f,14),arc(g,c,f,4),arc(g,i,g,6),arc(g,i,c,2),arc(g,i,h,7),
+      arc(g,b,h,11),arc(g,a,h,8),arc(g,g,h,1),arc(g,g,f,2),arc(g,e,f,10),
+      arc(g,e,d,9),arc(g,c,d,7),arc(g,c,b,8),arc(g,a,b,4)].
 
 Note: in this case, arcs in both directions are generated for more consistency.
 
@@ -327,7 +349,7 @@ Now, if you want to get the lists of arcs starting from c or all of its directly
 connected vertices:
 
 ?- vertex_neighbors(g, c, Es).
-Es = [arc(g,c,i,2),arc(g,c,f,4),arc(g,c,d,7),arc(g,c,b,8)].
+Es = [arc(g,c,f,4),arc(g,c,d,7),arc(g,c,b,8),arc(g,c,i,2)].
 
 This works also in the opposite, regardless of the order in the list:
 
@@ -356,8 +378,8 @@ Suppose you have the whole graph g in 'my_graph.csv'. If you want to load it in
 the graph boh:
 read_graph(boh, 'my_graph.csv').
 This cleans out all the arcs and vertices contained in boh, and adds all the
-arcs contain.
-printing the graph will lead to:
+arcs contained in 'my_graph.csv'.
+printing the graph after that will lead to:
 
 ?- list_graph(boh).
 :- dynamic vertex/2.
@@ -374,20 +396,20 @@ vertex(boh, a).
 
 :- dynamic arc/4.
 
-arc(boh, d, f, 14).
-arc(boh, c, f, 4).
-arc(boh, i, g, 6).
-arc(boh, i, c, 2).
-arc(boh, i, h, 7).
-arc(boh, b, h, 11).
-arc(boh, a, h, 8).
-arc(boh, g, h, 1).
-arc(boh, g, f, 2).
-arc(boh, e, f, 10).
-arc(boh, e, d, 9).
-arc(boh, c, d, 7).
-arc(boh, c, b, 8).
-arc(boh, a, b, 4).
+arc(boh, f, d, 14).
+arc(boh, f, c, 4).
+arc(boh, g, i, 6).
+arc(boh, c, i, 2).
+arc(boh, h, i, 7).
+arc(boh, h, b, 11).
+arc(boh, h, a, 8).
+arc(boh, h, g, 1).
+arc(boh, f, g, 2).
+arc(boh, f, e, 10).
+arc(boh, d, e, 9).
+arc(boh, d, c, 7).
+arc(boh, b, c, 8).
+arc(boh, b, a, 4).
 
 true.
 
@@ -416,9 +438,15 @@ PreorderTree = [arc(g, c, i, 2), arc(g, c, f, 4), arc(g, f, g, 2),
 
 
 
---------------------------------------------------------------------------------
-3. MINHEAP API 
---------------------------------------------------------------------------------
+
+
+
+		       	     	 3. MINHEAP API 
+
+
+
+
+
 3.1 USAGE
 
 3.1.1 HEAP MANIPULATION
@@ -469,6 +497,8 @@ its key and V is the associated value.
 
 3.2 EXAMPLES
 
+
+
 3.2.1 HEAP MANIPULATION
 
 ?- new_heap(h).
@@ -495,7 +525,9 @@ change its key from 3 to 1, just run:
 true.
 
 
+
 3.2.2 GETTING INFORMATIONS
+
 Suppose you have the heap created at the previous point. You can retrieve its
 head by running:
 ?- heap_head(h, K, V).
