@@ -29,6 +29,7 @@
 ;;                                          key: adjacent id to vertex-id
 ;;                                          value: arc weight
 ;;
+;;
 ;; Arcs are stored in double direction: this allows to execute some functions
 ;; (for example graph-vertex-neighbors and, consequently, the prim'a  algorithm)
 ;; much faster.
