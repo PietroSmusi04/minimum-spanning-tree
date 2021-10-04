@@ -33,7 +33,7 @@
 ;; (for example graph-vertex-neighbors and, consequently, the prim'a  algorithm)
 ;; much faster.
 ;;
-
+;;
 
 (defparameter *arcs* (make-hash-table :test #'equal))
 
